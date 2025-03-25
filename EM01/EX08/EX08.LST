@@ -1,0 +1,104 @@
+* Microsoft COBOL Version 4.5        L2.4 revision 002 25-Mar-25 11:07 Page   1
+*                                       EX08.CBL
+* Options: LIST(EX08.LST) ASMLIST(EX08.GRP)
+     1 IDENTIFICATION DIVISION.
+     2 PROGRAM-ID.    EX08.
+     3 AUTHOR.        LEVI LIMA BELTRAO.
+     4 DATE-WRITTEN.  25/03/2025.
+     5 DATE-COMPILED. 25-Mar-25 11:07.
+     6 SECURITY.      SOMENTE O AUTOR PODE MODIFICAR.
+     7*REMARKS.       LE OS REGISTROS DO ARQUIVO CADFUN (CODIGO, NOME,
+     8*               SALARIO), CALCULA PARA TODOS OS REGISTROS DE
+     9*               ENTRADA O REAJUSTE DE SALARIO E GRAVA OS REGISTROS
+    10*               DE SAIDA NO ARQUIVO CADSAI (CODIGO, NOME, SALARIO
+    11*               REAJUSTADO).
+    12
+    13 ENVIRONMENT DIVISION.
+    14 CONFIGURATION SECTION.
+    15 SOURCE-COMPUTER. LEVI-PC.
+    16 OBJECT-COMPUTER. LEVI-PC.
+    17 SPECIAL-NAMES.   DECIMAL-POINT IS COMMA.
+    18
+    19 INPUT-OUTPUT SECTION.
+    20 FILE-CONTROL.
+    21     SELECT CADFUN ASSIGN TO DISK
+    22     ORGANIZATION IS LINE SEQUENTIAL.
+    23     SELECT CADSAI ASSIGN TO DISK
+    24     ORGANIZATION IS LINE SEQUENTIAL.
+    25
+    26 DATA DIVISION.
+    27 FILE SECTION.
+    28 FD CADFUN
+    29     LABEL RECORD ARE STANDARD
+    30     VALUE OF FILE-ID IS "CADFUN.DAT".
+    31
+    32 01 REG-ENT.
+    33     02 COD-ENT             PIC 9(05).
+    34     02 NOME-ENT            PIC X(20).
+    35     02 SAL-ENT             PIC 9(05)V99.
+    36
+    37 FD CADSAI
+    38     LABEL RECORD ARE STANDARD
+    39     VALUE OF FILE-ID IS "CADSAI.DAT".
+    40
+    41 01 REG-SAI.
+    42     02 COD-SAI             PIC 9(05).
+    43     02 NOME-SAI            PIC X(20).
+    44     02 SAL-SAI             PIC 9(05)V99.
+    45
+    46 WORKING-STORAGE SECTION.
+    47 77 FIM-ARQ                 PIC X(03)       VALUE IS "NAO".
+    48 77 REAJUSTE                PIC 9(01)V99.
+    49 77 SAL-REAJUSTADO          PIC 9(05)V99.
+    50
+    51 PROCEDURE DIVISION.
+    52 EXFIX.
+    53
+    54 PERFORM INICIO.
+    55 PERFORM PRINCIPAL
+    56     UNTIL FIM-ARQ EQUAL "SIM".
+    57 PERFORM TERMINO.
+* Microsoft COBOL Version 4.5        L2.4 revision 002 25-Mar-25 11:07 Page   2
+*                                       EX08.CBL
+    58 STOP RUN.
+    59
+    60 INICIO.
+    61     OPEN INPUT CADFUN
+    62         OUTPUT CADSAI.
+    63     PERFORM LEITURA.
+    64
+    65 LEITURA.
+    66     READ CADFUN
+    67         AT END
+    68         MOVE "SIM" TO FIM-ARQ.
+    69
+    70 PRINCIPAL.
+    71     PERFORM GRAVACAO.
+    72     PERFORM LEITURA.
+    73
+    74 GRAVACAO.
+    75     MOVE ZEROS        TO   REAJUSTE.
+    76     MOVE ZEROS        TO   SAL-REAJUSTADO.
+    77     IF SAL-ENT NOT > 1000 THEN
+    78         MOVE 1,12       TO   REAJUSTE
+    79     ELSE
+    80         IF SAL-ENT NOT > 2000 THEN
+    81             MOVE 1,11  TO   REAJUSTE
+    82         ELSE
+    83             MOVE 1,10  TO   REAJUSTE.
+    84
+    85     MULTIPLY SAL-ENT BY REAJUSTE GIVING SAL-REAJUSTADO.
+    86     MOVE COD-ENT      TO   COD-SAI.
+    87     MOVE NOME-ENT     TO   NOME-SAI.
+    88     MOVE SAL-REAJUSTADO TO SAL-SAI.
+    89     WRITE REG-SAI.
+    90
+    91 TERMINO.
+    92     CLOSE CADFUN
+    93           CADSAI.
+* Microsoft COBOL Version 4.5        L2.4 revision 002
+* (C)Copyright Microsoft Corp 1984, 1991       URN AXUPA/MS0/000000
+*                                              REF GNB-024050002A7
+*
+* Total Messages:     0
+* Data:        1052     Code:         400     Dictionary:        1189

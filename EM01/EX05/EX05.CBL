@@ -1,0 +1,89 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    EX05.
+       AUTHOR.        LEVI LIMA BELTRAO.
+       DATE-WRITTEN.  24/03/2025.
+       DATE-COMPILED. 24/03/2025.
+       SECURITY.      APENAS O AUTOR PODE MODIFICAR.
+      *REMARKS.       LE OS REGISTROS NO ARQUIVO CADALU
+      *               (NUM, NOME, NOTA1, NOTA2, FALTAS)
+      *               E GRAVA NO ARQUIVO CADAPR (NUM, NOME,
+      *               MEDIA) AQUELES OS REGISTROS QUE TIVEREM
+      *               MEDIA >= 7 E FALTAS <= 18.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SOURCE-COMPUTER. LEVI-PC.
+       OBJECT-COMPUTER. LEVI-PC.
+       SPECIAL-NAMES.   DECIMAL-POINT IS COMMA.
+
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CADALU ASSIGN TO DISK
+           ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT CADAPR ASSIGN TO DISK
+           ORGANIZATION IS LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD CADALU
+           LABEL RECORD ARE STANDARD
+           VALUE OF FILE-ID IS "CADALU.DAT".
+
+       01 REG-ENT.
+           02 NUM-ENT       PIC 9(05).
+           02 NOME-ENT      PIC X(20).
+           02 NOTA1         PIC 9(2)V99.
+           02 NOTA2         PIC 9(2)V99.
+           02 FALTAS        PIC 9(02).
+
+       FD CADAPR
+           LABEL RECORD ARE STANDARD
+           VALUE OF FILE-ID IS "CADAPR.DAT".
+
+       01 REG-SAI.
+           02 NUM-SAI       PIC 9(05).
+           02 NOME-SAI      PIC X(20).
+           02 MEDIA         PIC 9(2)V99.
+
+       WORKING-STORAGE SECTION.
+       77 FIM-ARQ        PIC X(03)   VALUE "NAO".
+       77 SOMA-NOTA      PIC 9(2)V99 VALUE ZEROS.
+       77 WMEDIA         PIC 9(2)V99 VALUE ZEROS.
+
+       PROCEDURE DIVISION.
+       EXFIX.
+
+       PERFORM INICIO.
+       PERFORM PRINCIPAL
+           UNTIL FIM-ARQ EQUAL "SIM".
+       PERFORM TERMINO.
+       STOP RUN.
+
+       INICIO.
+           OPEN INPUT CADALU
+               OUTPUT CADAPR.
+           PERFORM LEITURA.
+
+       LEITURA.
+           READ CADALU
+               AT END
+               MOVE "SIM" TO FIM-ARQ.
+
+       PRINCIPAL.
+           PERFORM GRAVACAO.
+           PERFORM LEITURA.
+
+       GRAVACAO.
+           MOVE 0 TO SOMA-NOTA.
+           MOVE 0 TO WMEDIA.
+           ADD NOTA1, NOTA2 TO SOMA-NOTA.
+           DIVIDE SOMA-NOTA BY 2 GIVING WMEDIA.
+           IF FALTAS NOT > 18 AND WMEDIA NOT < 7 THEN
+               MOVE NUM-ENT TO NUM-SAI
+               MOVE NOME-ENT TO NOME-SAI
+               MOVE WMEDIA TO MEDIA
+               WRITE REG-SAI.
+
+       TERMINO.
+           CLOSE CADALU
+                 CADAPR.

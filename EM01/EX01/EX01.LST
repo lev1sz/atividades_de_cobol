@@ -1,0 +1,91 @@
+* Microsoft COBOL Version 4.5        L2.4 revision 002 23-Mar-25 12:13 Page   1
+*                                       EX01.CBL
+* Options: LIST(EX01.LST) ASMLIST(EX01.GRP)
+     1 IDENTIFICATION DIVISION.
+     2 PROGRAM-ID.     EX01.
+     3 AUTHOR.         LEVI LIMA BELTRAO.
+     4 INSTALLATION.   LEVI-PC.
+     5 DATE-WRITTEN.   23/03/2025.
+     6 DATE-COMPILED. 23-Mar-25 12:13.
+     7*REMARKS.        LE OS ARQUIVOS DO REGISTRO
+     8*                CADCLI1 (COD-ENT E NOME-ENT)
+     9*                E GRAVA EM CADCLI2 (NOME-SAI
+    10*                COD-SAI).
+    11
+    12 ENVIRONMENT DIVISION.
+    13 CONFIGURATION SECTION.
+    14 SOURCE-COMPUTER.  LEVI-PC.
+    15 OBJECT-COMPUTER.  LEVI-PC.
+    16 SPECIAL-NAMES.    DECIMAL-POINT IS COMMA.
+    17
+    18 INPUT-OUTPUT SECTION.
+    19 FILE-CONTROL.
+    20     SELECT CADCLI1 ASSIGN TO DISK
+    21     ORGANIZATION IS LINE SEQUENTIAL.
+    22     SELECT CADCLI2 ASSIGN TO DISK
+    23     ORGANIZATION IS LINE SEQUENTIAL.
+    24
+    25 DATA DIVISION.
+    26 FILE SECTION.
+    27 FD CADCLI1
+    28     LABEL RECORD ARE STANDARD
+    29     VALUE OF FILE-ID IS "CADCLI1.DAT".
+    30
+    31 01 REG-ENT.
+    32     02 COD-ENT  PIC 9(05).
+    33     02 NOME-ENT PIC X(20).
+    34
+    35 FD CADCLI2
+    36     LABEL RECORD ARE STANDARD
+    37     VALUE OF FILE-ID IS "CADCLI2.DAT".
+    38
+    39 01 REG-SAI.
+    40     02 NOME-SAI PIC X(20).
+    41     02 COD-SAI  PIC 9(05).
+    42
+    43 WORKING-STORAGE SECTION.
+    44 77 FIM-ARQ PIC X(03) VALUE "NAO".
+    45
+    46 PROCEDURE DIVISION.
+    47 EXFIX.
+    48
+    49 PERFORM INICIO.
+    50
+    51 PERFORM PRINCIPAL
+    52     UNTIL FIM-ARQ EQUAL "SIM".
+    53
+    54 PERFORM TERMINO.
+    55
+    56 STOP RUN.
+    57
+* Microsoft COBOL Version 4.5        L2.4 revision 002 23-Mar-25 12:13 Page   2
+*                                       EX01.CBL
+    58 INICIO.
+    59     OPEN INPUT CADCLI1
+    60         OUTPUT CADCLI2.
+    61     PERFORM LEITURA.
+    62
+    63 LEITURA.
+    64     READ CADCLI1
+    65         AT END
+    66         MOVE "SIM" TO FIM-ARQ.
+    67
+    68 PRINCIPAL.
+    69     PERFORM GRAVACAO.
+    70     PERFORM LEITURA.
+    71
+    72 GRAVACAO.
+    73     MOVE COD-ENT TO COD-SAI.
+    74     MOVE NOME-ENT TO NOME-SAI.
+    75     WRITE REG-SAI.
+    76
+    77 TERMINO.
+    78     CLOSE CADCLI1
+    79           CADCLI2.
+    80
+* Microsoft COBOL Version 4.5        L2.4 revision 002
+* (C)Copyright Microsoft Corp 1984, 1991       URN AXUPA/MS0/000000
+*                                              REF GNB-024050002A7
+*
+* Total Messages:     0
+* Data:        1016     Code:         313     Dictionary:        1009
