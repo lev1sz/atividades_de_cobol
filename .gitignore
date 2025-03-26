@@ -1,6 +1,7 @@
-.OBJ
-.EXE
-.GRP
-.LST
-.MAP
-.DAT
+*.OBJ
+*.EXE
+*.GRP
+*.LST
+*.MAP
+*.DAT
+
